@@ -1,0 +1,56 @@
+version: '2'
+
+services:
+ nginx:
+    image: nginx:stable-alpine3.17
+    container_name: nginx
+    hostname: nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./php/data/:/usr/share/nginx/html
+
+    ports:
+     - "80:80"
+    networks:
+     - default
+
+ mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: bitrix
+      MYSQL_USER: bitrix
+      MYSQL_PASSWORD: bitrix1234
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: bitrix1234
+    volumes:
+      - ./mysql:/var/lib/mysql/
+    ports:
+      - 3306:3306
+    networks:
+      - default
+
+ php:
+    build:
+      context: ./php/
+    container_name: php
+    restart: unless-stopped
+    user: root
+    ports:
+      - 9000:9000
+    volumes:
+      - ./php/data/:/var/www/html
+      - ./php/php.ini:/usr/local/etc/php/php.ini
+    networks:
+      - default
+
+networks:
+  default:
+    name: bitrix-network
+    driver: bridge
+
+  
+
+
